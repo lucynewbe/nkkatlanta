@@ -114,6 +114,46 @@ function seed() {
         JSON.stringify(['🪁 Kite Flying', '🍚 Pongal', '🌺 Ellu-Bella Exchange'])],
     ].forEach(e => insertEvt.run(...e));
   }
+
+  const teamCount = db.prepare("SELECT COUNT(*) as c FROM team_members").get().c;
+  if (teamCount === 0) {
+    const insertTeam = db.prepare(`INSERT INTO team_members (name, role, category, description, image_url, avatar_emoji) VALUES (?, ?, ?, ?, ?, ?)`);
+    [
+      ['Dr. Subra Bhat', 'Trustee', 'trustee', 'Dr. Bhat is board-certified in Internal Medicine. He served as chairman of Atlanta Kannada Koota.', '/assets/Subra.png', '🧔‍♂️'],
+      ['Dr. Anu Bhat', 'Trustee', 'trustee', 'Dr Anu Bhat is an award-winning Rheumatologist at Emory University in Atlanta.', '/assets/Dr.Anu.jpg', '👩‍⚕️'],
+      ['Ramesh Ugrappa', 'Chairman', 'bod', 'Leading the 2026 Board of Directors.', null, '👨‍💼'],
+      ['Ramesh Venkatesh', 'President', 'ec', 'President of NKK 2026. Moved to Atlanta in 2018.', null, '👨‍💼'],
+      ['Sudeep Hebbar', 'BoD', 'bod', 'Software Architect by profession and an outdoor/music enthusiast from Udupi district.', '/assets/Sudeep.jpg', '👨‍💻'],
+      ['Kavitha', 'Secretary', 'ec', 'Cloud Data Engineer with 15+ years experience. Featured on Times Square as Top 100 Women in Tech.', null, '👩‍💼'],
+      ['Chaitra', 'Executive Committee', 'ec', 'Regional Program Manager for SEWA Internationals and Kannada teacher at Marietta Kannada Shaale.', null, '👩‍🏫'],
+      ['Srinivas Yelwal', 'VP of Public Relations', 'ec', 'Supporting NKK PR initiatives.', null, '🗣️'],
+      ['Prakash Ramachandraiah', 'BoD', 'bod', 'Key role in directing Kannada literary dramas and co-chair of AKKA 2012 Sammelana.', null, '🎭'],
+      ['Sharathbabu Krishnarao', 'Treasurer', 'ec', 'Treasurer for 2026. Volunteered heavily in AKKA 2012.', '/assets/image.png', '📊'],
+      ['Anjana Rao', 'BoD', 'bod', 'Product management director residing in Duluth.', null, '👩‍💼'],
+      ['Keshava Prasad', 'VP Administration/Ops', 'ec', 'IT Architect residing in Alpharetta for the past 8 years.', '/assets/Keshava_photo.jpg', '🖥️'],
+      ['SantoshKumar Pajimbila', 'BoD', 'bod', 'NKK 2026 Board of Directors.', null, '👨‍💼'],
+      ['Sreedhar Venkat', 'BoD', 'bod', 'Key person in organizing many successful NKK events.', null, '📋'],
+      ['Bharatish Shirahatti', 'BoD', 'bod', 'Volunteering since 1994. Former NKK Chairman and Vice Chairman.', null, '👴'],
+      ['Bharath Tejasvi', 'Vice Chairman', 'ec', 'President in 2021/22. IT Architect and creator rooted in performing arts.', null, '🎙️'],
+      ['Dr. Rupali Biradar', 'BoD', 'bod', 'M.D in Ayurveda with 15+ years experience in the US.', null, '👩‍⚕️'],
+      ['Sanjay Chakrapani', 'BoD', 'bod', 'Technology spanning multiple industries, volunteering in NKK activities since 2013.', null, '👨‍💻']
+    ].forEach(t => insertTeam.run(...t));
+  }
+
+  const sponsorCount = db.prepare("SELECT COUNT(*) as c FROM sponsors").get().c;
+  if (sponsorCount === 0) {
+    const insertSponsor = db.prepare(`INSERT INTO sponsors (name, tier, link, image_url, description) VALUES (?, ?, ?, ?, ?)`);
+    [
+      ['KR Elixir', 'diamond', 'https://krelixir.com', '/assets/Krelixir.png', 'Diamond Corporate Sponsor'],
+      ['Serenity Smiles', 'gold', '#', '/assets/Serinity.png', 'Gold Corporate Partner'],
+      ['Rapid IT', 'silver', '#', '/assets/rapidiit.png', 'Technology Partner'],
+      ['Suvidha International', 'silver', '#', '/assets/Suvidha.png', 'Community Partner'],
+      ['Satidhh', 'silver', '#', '/assets/Satidhh.png', 'Official Sponsor'],
+      ['Mukund Galgali', 'general', '#', null, 'Community Donor'],
+      ['Srikanth Honnaiah', 'general', '#', null, 'Community Donor'],
+      ['Kavitha Lakshminarasaiah', 'general', '#', null, 'Community Donor']
+    ].forEach(s => insertSponsor.run(...s));
+  }
 }
 
 seed();
