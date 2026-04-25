@@ -142,7 +142,7 @@ function seed() {
 
   const sponsorCount = db.prepare("SELECT COUNT(*) as c FROM sponsors").get().c;
   if (sponsorCount === 0) {
-    const insertSponsor = db.prepare(`INSERT INTO sponsors (name, tier, link, image_url, description) VALUES (?, ?, ?, ?, ?)`);
+    const insertSponsor = db.prepare(`INSERT INTO sponsors (name, tier, website, image_url, description) VALUES (?, ?, ?, ?, ?)`);
     [
       ['KR Elixir', 'diamond', 'https://krelixir.com', '/assets/Krelixir.png', 'Diamond Corporate Sponsor'],
       ['Serenity Smiles', 'gold', '#', '/assets/Serinity.png', 'Gold Corporate Partner'],
