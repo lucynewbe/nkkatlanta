@@ -117,7 +117,7 @@ function seed() {
 
   const teamCount = db.prepare("SELECT COUNT(*) as c FROM team_members").get().c;
   if (teamCount === 0) {
-    const insertTeam = db.prepare(`INSERT INTO team_members (name, role, category, description, image_url, avatar_emoji) VALUES (?, ?, ?, ?, ?, ?)`);
+    const insertTeam = db.prepare(`INSERT INTO team_members (name, role, category, bio, image_url, avatar_emoji) VALUES (?, ?, ?, ?, ?, ?)`);
     [
       ['Dr. Subra Bhat', 'Trustee', 'trustee', 'Dr. Bhat is board-certified in Internal Medicine. He served as chairman of Atlanta Kannada Koota.', '/assets/Subra.png', '🧔‍♂️'],
       ['Dr. Anu Bhat', 'Trustee', 'trustee', 'Dr Anu Bhat is an award-winning Rheumatologist at Emory University in Atlanta.', '/assets/Dr.Anu.jpg', '👩‍⚕️'],
