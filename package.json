@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "build:frontend": "cd frontend && npm run build",
-    "start": "cd backend && node server.js",
-    "postinstall": "npm run install:all"
+    "start": "cd backend && node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
