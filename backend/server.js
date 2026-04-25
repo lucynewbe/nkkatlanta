@@ -53,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
   const frontendDist = path.join(__dirname, '../frontend/dist');
   app.use(express.static(frontendDist));
   
-  app.get('/:path*', (req, res, next) => {
+  app.get('/:path(.*)', (req, res, next) => {
     // If request is for an API route, let it fall through to 404
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(frontendDist, 'index.html'));
