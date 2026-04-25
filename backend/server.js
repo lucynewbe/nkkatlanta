@@ -53,9 +53,10 @@ if (process.env.NODE_ENV === 'production') {
   const frontendDist = path.join(__dirname, '../frontend/dist');
   app.use(express.static(frontendDist));
   
-  app.get('/:path(.*)', (req, res, next) => {
-    // If request is for an API route, let it fall through to 404
-    if (req.path.startsWith('/api')) return next();
+  // SPA Fallback: Catch any non-API request and serve index.html
+  app.use((req, res, next) => {
+    // Let API routes fall through to the actual 404 handler
+    if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
     res.sendFile(path.join(frontendDist, 'index.html'));
   });
 }
