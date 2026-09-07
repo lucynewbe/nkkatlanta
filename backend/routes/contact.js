@@ -2,16 +2,24 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const auth = require('../middleware/authenticate');
+const { sendMail } = require('../lib/mail');
 
 // POST /api/contact — public (form submissions)
 router.post('/', (req, res) => {
-  const { first_name, last_name, email, subject, message } = req.body;
+  const { first_name, last_name, email, subject, message, type, phone, extra } = req.body;
   if (!email || !message) {
     return res.status(400).json({ error: 'email and message are required' });
   }
   const result = db.prepare(
-    'INSERT INTO contact_submissions (first_name, last_name, email, subject, message) VALUES (?,?,?,?,?)'
-  ).run(first_name || '', last_name || '', email, subject || '', message);
+    'INSERT INTO contact_submissions (first_name, last_name, email, subject, message, type, phone, extra) VALUES (?,?,?,?,?,?,?,?)'
+  ).run(
+    first_name || '', last_name || '', email, subject || '', message,
+    type || 'contact', phone || '', extra ? JSON.stringify(extra) : ''
+  );
+  sendMail({
+    subject: `NKK ${type || 'contact'}: ${subject || 'new message'}`,
+    text: `${first_name || ''} ${last_name || ''}\n${email}\n${phone || ''}\n\n${message}`,
+  });
   res.status(201).json({ success: true, id: result.lastInsertRowid });
 });
 
@@ -20,10 +28,13 @@ router.get('/', auth, (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;
   const offset = (page - 1) * limit;
-  const total = db.prepare('SELECT COUNT(*) as c FROM contact_submissions').get().c;
+  const type = req.query.type;
+  const where = type ? 'WHERE type = ?' : '';
+  const params = type ? [type] : [];
+  const total = db.prepare(`SELECT COUNT(*) as c FROM contact_submissions ${where}`).get(...params).c;
   const rows = db.prepare(
-    'SELECT * FROM contact_submissions ORDER BY created_at DESC LIMIT ? OFFSET ?'
-  ).all(limit, offset);
+    `SELECT * FROM contact_submissions ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+  ).all(...params, limit, offset);
   res.json({ total, page, limit, data: rows });
 });
 

@@ -24,7 +24,13 @@ app.use('/api/events',  require('./routes/events'));
 app.use('/api/team',    require('./routes/team'));
 app.use('/api/sponsors',require('./routes/sponsors'));
 app.use('/api/contact', require('./routes/contact'));
-app.use('/api/upload',  require('./routes/uploads'));
+app.use('/api/upload',      require('./routes/uploads'));
+app.use('/api/gallery',     require('./routes/gallery'));
+app.use('/api/news',        require('./routes/news'));
+app.use('/api/slides',      require('./routes/slides'));
+app.use('/api/content',     require('./routes/content'));
+app.use('/api/newsletter',  require('./routes/newsletter'));
+app.use('/api/scholarship', require('./routes/scholarship'));
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -41,7 +47,11 @@ app.get('/api/admin/stats', auth, (req, res) => {
       events:    db.prepare("SELECT COUNT(*) as c FROM events WHERE active=1").get().c,
       team:      db.prepare("SELECT COUNT(*) as c FROM team_members WHERE active=1").get().c,
       sponsors:  db.prepare("SELECT COUNT(*) as c FROM sponsors WHERE active=1").get().c,
-      messages:  db.prepare("SELECT COUNT(*) as c FROM contact_submissions").get().c,
+      messages:     db.prepare("SELECT COUNT(*) as c FROM contact_submissions").get().c,
+      gallery:      db.prepare("SELECT COUNT(*) as c FROM gallery_photos").get().c,
+      news:         db.prepare("SELECT COUNT(*) as c FROM news_posts").get().c,
+      scholarships: db.prepare("SELECT COUNT(*) as c FROM scholarship_applications").get().c,
+      rsvps:        db.prepare("SELECT COUNT(*) as c FROM event_rsvps").get().c,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

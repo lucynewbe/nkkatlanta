@@ -2,11 +2,16 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
-  { to: '/admin',          icon: '📊', label: 'Dashboard',   end: true },
-  { to: '/admin/events',   icon: '🎉', label: 'Events' },
-  { to: '/admin/team',     icon: '👥', label: 'Team Members' },
-  { to: '/admin/sponsors', icon: '🤝', label: 'Sponsors' },
-  { to: '/admin/messages', icon: '✉️', label: 'Messages' },
+  { to: '/admin',             icon: '◆', label: 'Dashboard', end: true },
+  { to: '/admin/events',      icon: '◆', label: 'Events' },
+  { to: '/admin/team',        icon: '◆', label: 'Team' },
+  { to: '/admin/sponsors',    icon: '◆', label: 'Sponsors' },
+  { to: '/admin/gallery',     icon: '◆', label: 'Gallery' },
+  { to: '/admin/news',        icon: '◆', label: 'News' },
+  { to: '/admin/slides',      icon: '◆', label: 'Hero slides' },
+  { to: '/admin/content',     icon: '◆', label: 'Site copy' },
+  { to: '/admin/scholarship', icon: '◆', label: 'Scholarships' },
+  { to: '/admin/messages',    icon: '◆', label: 'Messages' },
 ];
 
 export default function AdminLayout({ children, title }) {

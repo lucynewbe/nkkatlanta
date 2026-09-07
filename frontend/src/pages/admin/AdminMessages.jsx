@@ -8,11 +8,12 @@ export default function AdminMessages() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
+  const [type, setType] = useState('');
   const [expanded, setExpanded] = useState(null);
 
   const fetchMessages = (p = 1) => {
     setLoading(true);
-    get(`/api/contact?page=${p}&limit=20`)
+    get(`/api/contact?page=${p}&limit=20${type ? `&type=${type}` : ''}`)
       .then(data => {
         setMessages(data.data || []);
         setTotalPages(Math.ceil((data.total || 0) / 20));
@@ -21,7 +22,7 @@ export default function AdminMessages() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchMessages(page); }, [page]);
+  useEffect(() => { fetchMessages(page); }, [page, type]);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this message?')) return;
@@ -31,6 +32,13 @@ export default function AdminMessages() {
 
   return (
     <AdminLayout title="Contact Messages">
+      <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+        {['', 'contact', 'volunteer', 'feedback'].map(t => (
+          <button key={t || 'all'} className={`btn btn-sm ${type === t ? 'btn-gold' : 'btn-outline'}`} onClick={() => { setType(t); setPage(1); }}>
+            {t || 'All'}
+          </button>
+        ))}
+      </div>
       {loading ? (
         <div style={{ textAlign: 'center', padding: '4rem' }}><div className="loading-spinner" style={{ width: 40, height: 40, margin: '0 auto' }} /></div>
       ) : (

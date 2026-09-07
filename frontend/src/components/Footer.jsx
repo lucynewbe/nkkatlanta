@@ -1,6 +1,20 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState(null);
+
+  const subscribe = async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    setStatus(res.ok ? 'ok' : 'err');
+  };
+
   return (
     <footer>
       <div className="footer-inner">
@@ -9,7 +23,13 @@ export default function Footer() {
             <div className="kn">ನೃಪತುಂಗ ಕನ್ನಡ ಕೂಟ</div>
             <div className="en">Nrupathunga Kannada Koota</div>
             <p>Preserving Karnataka's culture and language for the Kannada-speaking community of Greater Atlanta since 1973.</p>
-            <span className="footer-badge">✅ IRS 501(c)(3) Non-Profit</span>
+            <span className="footer-badge">IRS 501(c)(3) Non-Profit</span>
+            <form onSubmit={subscribe} className="newsletter-bar">
+              <input className="form-input" type="email" required placeholder="Email for news" value={email} onChange={e => setEmail(e.target.value)} />
+              <button className="btn btn-outline btn-sm" type="submit">Subscribe</button>
+            </form>
+            {status === 'ok' && <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>You are on the list.</p>}
+            {status === 'err' && <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>Could not subscribe.</p>}
           </div>
           <div className="footer-col">
             <div className="footer-col-title">Organization</div>
@@ -24,10 +44,10 @@ export default function Footer() {
           <div className="footer-col">
             <div className="footer-col-title">Get Involved</div>
             <ul>
-              <li><NavLink to="/membership">Membership 2026</NavLink></li>
-              <li><NavLink to="/sponsors">Sponsors</NavLink></li>
+              <li><NavLink to="/membership">Membership</NavLink></li>
+              <li><NavLink to="/donate">Donate</NavLink></li>
+              <li><NavLink to="/news">News</NavLink></li>
               <li><NavLink to="/scholarship">Scholarship</NavLink></li>
-              <li><a href="https://sites.google.com/view/nkkpictures/home" target="_blank" rel="noopener noreferrer">NKK Photos 2025+</a></li>
             </ul>
           </div>
           <div className="footer-col">
