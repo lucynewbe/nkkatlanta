@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'nkk-super-secret-2026-change-in-prod';
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'nkk-dev-only-secret');
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  console.warn('WARNING: JWT_SECRET is not set. Set it before going live.');
+}
 
 function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;

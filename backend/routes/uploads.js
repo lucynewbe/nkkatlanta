@@ -2,14 +2,11 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const auth = require('../middleware/authenticate');
+const { requireRole } = require('../middleware/roles');
+const { ensureLocal, publicUrl } = require('../lib/storage');
 
-// Ensure upload directory exists
-const UPLOAD_DIR = path.join(__dirname, '../uploads');
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
+const UPLOAD_DIR = ensureLocal();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -34,12 +31,9 @@ const upload = multer({
 });
 
 // POST /api/upload - Admin only
-router.post('/', auth, upload.single('image'), (req, res) => {
+router.post('/', auth, requireRole('editor'), upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  
-  // Return the relative URL
-  const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: fileUrl });
+  res.json({ url: publicUrl(req.file.filename) });
 });
 
 module.exports = router;

@@ -70,9 +70,13 @@ nkk-react/
 ```bash
 cd backend
 npm install
+# If better-sqlite3 fails to load (bindings missing), npm blocked its install script:
+#   npm install-scripts approve better-sqlite3 && npm rebuild better-sqlite3
+# or:  cd node_modules/better-sqlite3 && npx --no-install prebuild-install
 npm run dev
 # Running at http://localhost:4000
-# Default Admin: admin / nkk@admin2026
+# Default Admin (local only): admin / nkk@admin2026
+# Copy backend/.env.example to backend/.env and set JWT_SECRET before production.
 ```
 
 ### 2. Start the Frontend
@@ -101,8 +105,10 @@ Default credentials (change in production!):
 The admin panel is at `/admin`. You can:
 - ✏️ Add / edit / delete **Events**
 - 👥 Add / edit / delete **Team Members** (Trustees & EC)
-- 🤝 Add / edit / delete **Sponsors** (per year, by tier)
-- ✉️ View and delete **Contact Form Submissions**
+- Add / edit / delete **Sponsors** (per year, by tier)
+- View and delete **Contact Form Submissions** (contact, volunteer, feedback)
+- Manage **Gallery** albums, **News**, **Hero slides**, and **site copy**
+- Review **scholarship applications**
 
 ---
 
@@ -126,6 +132,14 @@ All protected routes require `Authorization: Bearer <token>`.
 | GET | `/api/contact` | Admin | View submissions |
 | POST | `/api/auth/login` | Public | Login → JWT |
 | GET | `/api/admin/stats` | Admin | Dashboard stats |
+| GET | `/api/gallery` | Public | Albums and photos |
+| GET | `/api/news` | Public | Published news |
+| GET | `/api/slides` | Public | Hero slides |
+| GET | `/api/content` | Public | Donate/membership URLs and copy |
+| POST | `/api/newsletter` | Public | Newsletter signup |
+| POST | `/api/scholarship` | Public | Scholarship application |
+| POST | `/api/events/:id/rsvp` | Public | Event waitlist |
+| GET | `/api/events/:id/ics` | Public | Calendar file |
 
 ---
 

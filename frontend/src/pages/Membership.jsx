@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useApi';
+import Seo from '../components/Seo.jsx';
+import PageHeader from '../components/PageHeader.jsx';
 
 const BENEFITS = [
   { icon: '🎭', title: 'Spectacular Cultural Events', desc: 'Four major celebrations: Sankranti, Ugadi, Vanabhojana, and the grand Deepavali/Rajyotsava event.' },
@@ -29,40 +31,34 @@ const FEATURES = [
 
 export default function Membership() {
   useScrollReveal();
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  const [joinUrl, setJoinUrl] = useState('https://www.zeffy.com/en-US/ticketing/nrupathunga-kannada-koota-nkk-atlanta-membership--2026');
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    fetch('/api/content').then(r => r.json()).then(c => { if (c.membership_url) setJoinUrl(c.membership_url); }).catch(() => {});
+  }, []);
 
   return (
     <>
-      <header className="page-header">
-        <div className="page-tag">2026 Membership</div>
-        <h1 className="page-title">Join the <span className="gradient-text">NKK Family</span></h1>
-        <p className="page-subtitle">Connect with 1200+ Kannada families. Celebrate your culture. Build lifelong friendships.</p>
-        <div className="divider" />
-      </header>
+      <Seo title="Membership" description="Join Nrupathunga Kannada Koota — annual family membership for Greater Atlanta Kannadigas." />
+      <PageHeader tag="Membership" title="Join the" accent="NKK Family" subtitle="Connect with 1200+ Kannada families. Celebrate your culture. Build lifelong friendships." />
 
       <section>
         <div className="container">
           <div className="grid-2" style={{ gap: '3rem', alignItems: 'start' }}>
             {/* Card */}
             <div className="reveal">
-              <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', background: 'linear-gradient(135deg,rgba(200,132,26,0.08),rgba(124,58,237,0.08))', border: '1px solid rgba(200,132,26,0.2)' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🌟</div>
+              <div className="glass-card invite-card">
                 <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.6rem', marginBottom: '0.5rem' }}>NKK Family Membership</h2>
-                <div style={{ fontFamily: 'var(--font-kannada)', fontSize: '1rem', color: 'var(--color-primary-2)', marginBottom: '1.5rem' }}>ಕುಟುಂಬ ಸದಸ್ಯತ್ವ — 2026</div>
+                <div style={{ fontFamily: 'var(--font-kannada)', fontSize: '1rem', color: 'var(--color-primary-2)', marginBottom: '1.5rem' }}>ಕುಟುಂಬ ಸದಸ್ಯತ್ವ</div>
                 <div className="membership-price">Annual</div>
-                <div className="membership-period">2026 Season Membership</div>
+                <div className="membership-period">Season membership</div>
                 <ul className="membership-features">
                   {FEATURES.map(f => <li key={f}>{f}</li>)}
                 </ul>
-                <a
-                  href="https://www.zeffy.com/en-US/ticketing/nrupathunga-kannada-koota-nkk-atlanta-membership--2026"
-                  target="_blank" rel="noopener noreferrer"
-                  className="btn btn-gold"
-                  style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem', padding: '1rem 2rem' }}
-                >
-                  🎉 Register for Membership 2026 →
+                <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', fontSize: '1.05rem', padding: '1rem 2rem' }}>
+                  Register on Zeffy
                 </a>
-                <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Powered by Zeffy · Secure registration</p>
+                <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Secure checkout via Zeffy</p>
               </div>
             </div>
 

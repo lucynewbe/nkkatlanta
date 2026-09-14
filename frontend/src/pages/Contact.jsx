@@ -30,7 +30,7 @@ export default function Contact() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, type: 'contact' }),
       });
       if (!res.ok) throw new Error('Failed');
       setStatus('success');
@@ -40,14 +40,50 @@ export default function Contact() {
     }
   };
 
-  const handleVolunteer = (e) => {
+  const handleVolunteer = async (e) => {
     e.preventDefault();
-    setVolStatus('success');
+    setVolStatus('loading');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: volunteer.name,
+          email: volunteer.email,
+          phone: volunteer.phone,
+          subject: 'Volunteer',
+          message: `Skills: ${volunteer.skills}\nAvailability: ${volunteer.availability}`,
+          type: 'volunteer',
+        }),
+      });
+      if (!res.ok) throw new Error('fail');
+      setVolStatus('success');
+    } catch {
+      setVolStatus('error');
+    }
   };
 
-  const handleFeedback = (e) => {
+  const handleFeedback = async (e) => {
     e.preventDefault();
-    setFbStatus('success');
+    setFbStatus('loading');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: feedback.name,
+          email: feedback.email || 'anonymous@nkk.local',
+          subject: `Feedback ${feedback.rating}/5`,
+          message: feedback.comments,
+          type: 'feedback',
+          extra: { rating: feedback.rating },
+        }),
+      });
+      if (!res.ok) throw new Error('fail');
+      setFbStatus('success');
+    } catch {
+      setFbStatus('error');
+    }
   };
 
   return (

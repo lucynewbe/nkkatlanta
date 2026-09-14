@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useApi';
+import Seo from '../components/Seo.jsx';
 
 const ELIGIBILITY = [
   'Child of an active NKK paid member family',
@@ -20,10 +21,13 @@ const STEPS = [
 
 export default function Scholarship() {
   useScrollReveal();
+  const [form, setForm] = useState({ student_name: '', email: '', phone: '', school: '', essay: '' });
+  const [status, setStatus] = useState(null);
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
     <>
+      <Seo title="Scholarship" description="Muteri Scholarship Program for children of NKK member families in Greater Atlanta." />
       <header className="page-header">
         <div className="page-tag">Academic Excellence</div>
         <h1 className="page-title">Muteri <span className="gradient-text">Scholarship</span></h1>
@@ -84,6 +88,31 @@ export default function Scholarship() {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div className="apply-box reveal" style={{ marginTop: '3rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.6rem', marginBottom: '0.5rem' }}>Apply online</h2>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>Your family should be a current NKK member. Attach transcripts by email after submitting.</p>
+            {status === 'success' ? (
+              <p>Application received. We will follow up at the email you provided.</p>
+            ) : (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/scholarship', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+                  setStatus(res.ok ? 'success' : 'error');
+                }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}
+              >
+                <input className="form-input" required placeholder="Student name" value={form.student_name} onChange={e => setForm(f => ({ ...f, student_name: e.target.value }))} />
+                <input className="form-input" type="email" required placeholder="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                <input className="form-input" placeholder="Phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                <input className="form-input" placeholder="School / college" value={form.school} onChange={e => setForm(f => ({ ...f, school: e.target.value }))} />
+                <textarea className="form-textarea" required placeholder="Short essay — community contribution" value={form.essay} onChange={e => setForm(f => ({ ...f, essay: e.target.value }))} />
+                {status === 'error' && <div className="alert alert-error">Could not submit. Email info@atlantakannada.org.</div>}
+                <button type="submit" className="btn btn-gold" style={{ justifyContent: 'center' }}>Submit application</button>
+              </form>
+            )}
           </div>
 
           {/* CTA */}

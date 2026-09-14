@@ -24,7 +24,10 @@ export default function AdminDashboard() {
     { icon: '🎉', label: 'Active Events',   key: 'events',   link: '/admin/events' },
     { icon: '👥', label: 'Team Members',    key: 'team',     link: '/admin/team' },
     { icon: '🤝', label: 'Sponsors',        key: 'sponsors', link: '/admin/sponsors' },
-    { icon: '✉️', label: 'Messages',        key: 'messages', link: '/admin/messages' },
+    { icon: '◆', label: 'Messages',      key: 'messages',      link: '/admin/messages' },
+    { icon: '◆', label: 'Gallery',       key: 'gallery',       link: '/admin/gallery' },
+    { icon: '◆', label: 'News',          key: 'news',          link: '/admin/news' },
+    { icon: '◆', label: 'Scholarships',  key: 'scholarships',  link: '/admin/scholarship' },
   ];
 
   const QUICK = [

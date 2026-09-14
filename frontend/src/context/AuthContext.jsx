@@ -5,6 +5,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('nkk_admin_token'));
   const [username, setUsername] = useState(() => localStorage.getItem('nkk_admin_user'));
+  const [role, setRole] = useState(() => localStorage.getItem('nkk_admin_role'));
   const [loading, setLoading] = useState(false);
 
   const login = async (user, pass) => {
@@ -22,8 +23,10 @@ export function AuthProvider({ children }) {
       const data = await res.json();
       localStorage.setItem('nkk_admin_token', data.token);
       localStorage.setItem('nkk_admin_user', data.username);
+      if (data.role) localStorage.setItem('nkk_admin_role', data.role);
       setToken(data.token);
       setUsername(data.username);
+      setRole(data.role || 'editor');
       return { success: true };
     } catch (e) {
       return { success: false, error: e.message };
@@ -35,12 +38,14 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('nkk_admin_token');
     localStorage.removeItem('nkk_admin_user');
+    localStorage.removeItem('nkk_admin_role');
     setToken(null);
     setUsername(null);
+    setRole(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, username, login, logout, loading, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ token, username, role, login, logout, loading, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,12 +2,53 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 const auth = require('../middleware/authenticate');
+const { sendMail } = require('../lib/mail');
 
 // GET /api/events — public
 router.get('/', (req, res) => {
   const events = db.prepare('SELECT * FROM events WHERE active = 1 ORDER BY id').all();
   events.forEach(e => { e.highlights = JSON.parse(e.highlights || '[]'); });
   res.json(events);
+});
+
+router.get('/:id/ics', (req, res) => {
+  const event = db.prepare('SELECT * FROM events WHERE id = ? AND active = 1').get(req.params.id);
+  if (!event) return res.status(404).json({ error: 'Event not found' });
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//NKK Atlanta//Events//EN',
+    'BEGIN:VEVENT',
+    `UID:nkk-event-${event.id}@atlantakannada.org`,
+    `DTSTAMP:${stamp}`,
+    `SUMMARY:${(event.title || 'NKK Event').replace(/\n/g, ' ')}`,
+    event.location ? `LOCATION:${event.location.replace(/\n/g, ' ')}` : '',
+    event.description ? `DESCRIPTION:${String(event.description).replace(/\n/g, ' ')}` : '',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].filter(Boolean).join('\r\n');
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="nkk-event-${event.id}.ics"`);
+  res.send(ics);
+});
+
+router.post('/:id/rsvp', (req, res) => {
+  const event = db.prepare('SELECT * FROM events WHERE id = ? AND active = 1').get(req.params.id);
+  if (!event) return res.status(404).json({ error: 'Event not found' });
+  const { name, email, guests } = req.body;
+  if (!name || !email) return res.status(400).json({ error: 'name and email are required' });
+  const r = db.prepare('INSERT INTO event_rsvps (event_id, name, email, guests) VALUES (?,?,?,?)')
+    .run(event.id, name, email, Number(guests) || 1);
+  sendMail({
+    subject: `RSVP: ${event.title} — ${name}`,
+    text: `${name} <${email}> guests=${guests || 1}`,
+  });
+  res.status(201).json({ success: true, id: r.lastInsertRowid });
+});
+
+router.get('/:id/rsvps', auth, (req, res) => {
+  res.json(db.prepare('SELECT * FROM event_rsvps WHERE event_id = ? ORDER BY created_at DESC').all(req.params.id));
 });
 
 // GET /api/events/:id — public

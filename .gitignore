@@ -3,4 +3,5 @@ dist
 .env
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/backups
 .DS_Store

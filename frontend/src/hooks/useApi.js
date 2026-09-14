@@ -46,22 +46,33 @@ export function useApi() {
 import { useEffect } from 'react';
 export function useScrollReveal(deps = []) {
   useEffect(() => {
-    // Small delay so React finishes rendering new DOM nodes before we observe
-    const timer = requestAnimationFrame(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let obs;
+    const id = window.setTimeout(() => {
       const els = document.querySelectorAll('.reveal, .timeline-item');
       if (!els.length) return;
-      const obs = new IntersectionObserver((entries) => {
+      if (reduced) {
+        els.forEach(el => el.classList.add('visible'));
+        return;
+      }
+      obs = new IntersectionObserver((entries) => {
         entries.forEach(e => {
           if (e.isIntersecting) {
             e.target.classList.add('visible');
             obs.unobserve(e.target);
           }
         });
-      }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
-      els.forEach(el => obs.observe(el));
-      return () => obs.disconnect();
-    });
-    return () => cancelAnimationFrame(timer);
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.92) el.classList.add('visible');
+        else obs.observe(el);
+      });
+    }, 40);
+    return () => {
+      clearTimeout(id);
+      obs?.disconnect();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }

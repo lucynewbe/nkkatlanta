@@ -68,7 +68,78 @@ db.exec(`
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     username      TEXT    NOT NULL UNIQUE,
     password_hash TEXT    NOT NULL,
+    role          TEXT    NOT NULL DEFAULT 'superadmin' CHECK(role IN ('superadmin','editor','viewer')),
     created_at    TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS gallery_albums (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT    NOT NULL,
+    description TEXT,
+    cover_url   TEXT,
+    year        INTEGER,
+    active      INTEGER DEFAULT 1,
+    created_at  TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS gallery_photos (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    album_id    INTEGER REFERENCES gallery_albums(id) ON DELETE CASCADE,
+    image_url   TEXT    NOT NULL,
+    caption     TEXT,
+    sort_order  INTEGER DEFAULT 0,
+    created_at  TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS news_posts (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT    NOT NULL,
+    body        TEXT,
+    image_url   TEXT,
+    published   INTEGER DEFAULT 1,
+    created_at  TEXT    DEFAULT (datetime('now')),
+    updated_at  TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS hero_slides (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    src         TEXT    NOT NULL,
+    label       TEXT,
+    subtitle    TEXT,
+    sort_order  INTEGER DEFAULT 0,
+    active      INTEGER DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS site_content (
+    key         TEXT PRIMARY KEY,
+    value       TEXT,
+    updated_at  TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS newsletter_signups (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    email       TEXT    NOT NULL UNIQUE,
+    created_at  TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS scholarship_applications (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_name TEXT    NOT NULL,
+    email        TEXT    NOT NULL,
+    phone        TEXT,
+    school       TEXT,
+    essay        TEXT,
+    status       TEXT    DEFAULT 'new',
+    created_at   TEXT    DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS event_rsvps (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id   INTEGER REFERENCES events(id),
+    name       TEXT    NOT NULL,
+    email      TEXT    NOT NULL,
+    guests     INTEGER DEFAULT 1,
+    created_at TEXT    DEFAULT (datetime('now'))
   );
 `);
 
@@ -85,6 +156,10 @@ const columns = [
   { table: 'team_members', name: 'avatar_emoji', type: 'TEXT DEFAULT "👤"' },
   { table: 'sponsors', name: 'image_url', type: 'TEXT' },
   { table: 'sponsors', name: 'description', type: 'TEXT' },
+  { table: 'contact_submissions', name: 'type', type: "TEXT DEFAULT 'contact'" },
+  { table: 'contact_submissions', name: 'phone', type: 'TEXT' },
+  { table: 'contact_submissions', name: 'extra', type: 'TEXT' },
+  { table: 'admin_users', name: 'role', type: "TEXT DEFAULT 'superadmin'" },
 ];
 
 columns.forEach(col => {
@@ -154,6 +229,44 @@ function seed() {
       ['Kavitha Lakshminarasaiah', 'general', '#', null, 'Community Donor']
     ].forEach(s => insertSponsor.run(...s));
   }
+
+  if (db.prepare('SELECT COUNT(*) as c FROM hero_slides').get().c === 0) {
+    const ins = db.prepare('INSERT INTO hero_slides (src, label, subtitle, sort_order) VALUES (?,?,?,?)');
+    [
+      ['/assets/hero-bg.png', 'Namma', 'The Magnificent Karnataka'],
+      ['/assets/hampi.png', 'Hampi', 'The Magnificent Ruins of Vijayanagara Empire'],
+      ['/assets/mysore.png', 'Mysore', 'The City of Palaces — ಮೈಸೂರು'],
+      ['/assets/jog.png', 'Jog Falls', "Karnataka's Majestic Waterfall Wonder"],
+      ['/assets/coorg.png', 'Coorg', 'Scotland of India — ಕೊಡಗು'],
+      ['/assets/badami.png', 'Badami', 'Ancient Cave Temples of the Chalukyas'],
+    ].forEach((s, i) => ins.run(...s, i));
+  }
+
+  if (db.prepare('SELECT COUNT(*) as c FROM gallery_albums').get().c === 0) {
+    const album = db.prepare('INSERT INTO gallery_albums (title, year) VALUES (?, ?)').run('Community Highlights', 2025);
+    const photo = db.prepare('INSERT INTO gallery_photos (album_id, image_url, caption, sort_order) VALUES (?,?,?,?)');
+    [
+      ['https://static.wixstatic.com/media/91e833_de8b5c2b93ac40568fcbb1b78bc404ea~mv2.jpg', 'NKK Participation in Indian Independence Day, IACA'],
+      ['https://static.wixstatic.com/media/91e833_1be0c962982b46c299448d730e141494f002.jpg', "'Dub-ki-Double' Comedy Event"],
+      ['https://static.wixstatic.com/media/91e833_418b56ca9b9647e2a40bc5aa0c5afb1f~mv2.jpg', 'Sankranthi Sambhrama 2020'],
+      ['https://static.wixstatic.com/media/91e833_b47ec738fc5a45b7858d1404f10726eb~mv2_d_4897_2906_s_4_2.jpg', 'Yugadi 2019 Pictures'],
+      ['https://static.wixstatic.com/media/91e833_25864af730df40309fea462b39fdfb90~mv2_d_4941_3294_s_4_2.jpg', 'Deepavali & Kannada Rajyothsava 2018'],
+      ['https://static.wixstatic.com/media/91e833_cca5d11faa744e158c3abef043b34268~mv2_d_5137_4281_s_4_2.jpg', '45th Anniversary Extravaganza'],
+    ].forEach((p, i) => photo.run(album.lastInsertRowid, p[0], p[1], i));
+  }
+
+  if (db.prepare('SELECT COUNT(*) as c FROM news_posts').get().c === 0) {
+    db.prepare('INSERT INTO news_posts (title, body) VALUES (?, ?)').run(
+      'Ugadi Sadagara 2026 tickets are open',
+      'Join NKK for Kannada New Year at West Forsyth High School. Membership and event tickets are available on Zeffy.'
+    );
+  }
+
+  const setContent = db.prepare('INSERT OR IGNORE INTO site_content (key, value) VALUES (?, ?)');
+  setContent.run('donate_url', 'https://www.zeffy.com/en-US/ticketing/nkk-annual-donations--2026');
+  setContent.run('membership_url', 'https://www.zeffy.com/en-US/ticketing/nrupathunga-kannada-koota-nkk-atlanta-membership--2026');
+  setContent.run('photos_library_url', 'https://sites.google.com/view/nkkpictures/home');
+  setContent.run('about_intro', "Five decades of celebrating Karnataka's culture, building community, and serving humanity in the heart of Georgia.");
 }
 
 seed();
